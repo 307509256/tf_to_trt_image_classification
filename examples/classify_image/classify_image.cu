@@ -2,7 +2,8 @@
  * Copyright (c) 2018, NVIDIA CORPORATION. All rights reserved.
  * Full license terms provided in LICENSE.md file.
  */
-
+#include <string>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -14,7 +15,7 @@
 using namespace std;
 using namespace cv;
 using namespace nvinfer1;
-
+int telephone = 0;
 class Logger : public ILogger
 {
     void log(Severity severity, const char *msg) override
@@ -92,6 +93,7 @@ int main(int argc, char *argv[])
     cout << "Preprocessing Video input..." << endl;
     VideoCapture cap;
     cap.open(1);
+    cap.set(CV_CAP_PROP_FPS, 5);
     //VideoCapture cap(0);
 
     // board
@@ -151,7 +153,7 @@ int main(int argc, char *argv[])
         bindings[outputBindingIndex] = (void *)outputDataDevice;
 
         /* execute engine */
-        cout << "Executing inference engine..." << endl;
+        //cout << "Executing inference engine..." << endl;
         const int kBatchSize = 1;
         context->execute(kBatchSize, bindings);
 
@@ -161,10 +163,10 @@ int main(int argc, char *argv[])
         /* parse output */
         vector<size_t> sortedIndices = argsort(outputDataHost, outputDims);
 
-        cout << "\nThe top-5 indices are: ";
+        /* cout << "\nThe top-5 indices are: ";
         for (int i = 0; i < 5; i++)
             cout << sortedIndices[i] << " ";
-
+        */
         ifstream labelsFile(labelFilename);
 
         if (!labelsFile.is_open())
@@ -180,12 +182,19 @@ int main(int argc, char *argv[])
             labelMap.push_back(label);
         }
 
-        cout << "\nWhich corresponds to class labels: ";
+        //cout << "\nWhich corresponds to class labels: ";
         for (int i = 0; i < 5; i++)
-            cout << endl
-                 << i << ". " << labelMap[sortedIndices[i]];
-        cout << endl;
-
+	{
+            string str = labelMap[sortedIndices[i]];
+            size_t fi= str.find("telephone", 0);
+            if (fi != std::string::npos)
+            {
+            	cout << endl
+                 << i << ". " << "telephone, num = " << telephone;
+            	cout << endl;
+                telephone ++;
+	    }
+	}
         /* clean up */
         //runtime->destroy();
         //engine->destroy();
@@ -195,7 +204,7 @@ int main(int argc, char *argv[])
         cudaFree(inputDataDevice);
         cudaFree(outputDataDevice);
         char c = (char)waitKey(25);
-        if (c == 27)  //press 'Esc'
+        if (c == 27)
             break;
     }
     cap.release();
