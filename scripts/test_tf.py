@@ -64,4 +64,7 @@ if __name__ == '__main__':
             # parse output
             top5 = net_meta['postprocess_fn'](output)
             print(top5)
+            output = output.flatten()
+            percent_top5 = output[::1][0:5]
+            printf(percent_top5)
             test_f.write("%s %s\n" % (net_name, avg_time))
