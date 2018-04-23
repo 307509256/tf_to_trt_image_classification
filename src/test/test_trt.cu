@@ -14,7 +14,6 @@
 #include <opencv2/opencv.hpp>
 #include <NvInfer.h>
 
-
 #define MS_PER_SEC 1000.0
 
 
@@ -325,7 +324,24 @@ void test(const TestConfig &testConfig)
 
   // save results to file
   int maxCategoryIndex = argmax(output, testConfig.NumOutputCategories()) + 1001 - testConfig.NumOutputCategories();
-  cout << "Most likely category id is " << maxCategoryIndex << endl;
+ 
+  
+  ifstream labelsFile("data/imagenet_labels_1001.txt");
+
+  if (!labelsFile.is_open())
+  {
+      cout << "\nCould not open label file." << endl;
+      return;	
+  }
+  vector<string> labelMap;
+  string label;
+  while (getline(labelsFile, label))
+  {
+      labelMap.push_back(label);
+  }
+  string str = labelMap[maxCategoryIndex];
+  cout << "Most likely category name is " << str << endl;
+  //cout << "Most likely category id is " << maxCategoryIndex << endl;
   cout << "Average execution time in ms is " << avgTime << endl;
   ofstream outfile;
   outfile.open(testConfig.statsPath, ios_base::app);
