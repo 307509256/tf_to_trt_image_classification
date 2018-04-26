@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
             if (fi != std::string::npos)
             {
             	cout << endl
-                 << i << ". " << "telephone, num = " << telephone;
+                 << i << ". " << "telephone, num = " << telephone << ",score = " << outputDataHost[sortedIndices[i]] << ",label = " << sortedIndices[i];  //label is begin 0, phone_id is 488;
             	cout << endl;
                 telephone ++;
 	    }
